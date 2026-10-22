@@ -22,19 +22,57 @@ const tabellone = document.getElementById("tabellone");
 const btnEstrai = document.getElementById("estrai");
 const btnReset = document.getElementById("reset");
 
-let estratti = [];
+let estratti = [];    // numeri già usciti (l'ultimo estratto è sempre il primo)
+let disponibili = []; // numeri ancora da estrarre
 
+// CREA IL TABELLONE
 function rendiTabellone() {
-  tabellone.innerHTML = '';
+  tabellone.innerHTML = '';  // svuota il tabellone
+  disponibili = [];          // azzera i numeri disponibili 
+
   for (let i = 1; i <= 90; i++) {
-    const cella = document.createElement('div');
-    cella.classList.add('numero');
-    cella.id = "numero-" + i;
-    cella.textContent = i;
-    tabellone.appendChild(cella);
+    const cella = document.createElement('div'); // crea una cella
+    cella.classList.add('numero');               // le dà lo stile base
+    cella.id = 'numero-' + i;                    // id per ritrovarla (es. numero-73)
+    cella.textContent = i;                       // scrive il numero dentro
+    tabellone.appendChild(cella);                // la aggiunge alla griglia
+    disponibili.push(i);                         // il numero è disponibile
   }
-
 }
+// crea il tabellone appena si apre la pagina
+rendiTabellone(); 
 
-rendiTabellone();
+// ESTRAI UN NUMERO
+btnEstrai.addEventListener('click', function() {
+  // se non ci sono più numeri disponibili, avvisa e si ferma
+  if (disponibili.length === 0){
+    alert('Tutti i numeri sono usciti!');
+    return;
+  } else {
+    // sceglie una posizione a caso tra i numeri disponibili
+    const indice = Math.floor(Math.random() * disponibili.length);
 
+    // toglie quel numero dai disponibili (così non può uscire di nuovo)
+    const numero = disponibili.splice(indice, 1)[0];
+
+    // lo aggiunge all'INIZIO dei numeri estratti
+    estratti.unshift(numero);
+
+    // mostra il numero grande
+    ultimoNumero.textContent = numero;
+
+    // mostra i primi 10 di estratti, cioè gli ultimi 10 usciti (il più recente è a sinistra)
+    cronologia.textContent = estratti.slice(0, 10).join(', ');
+
+    // colora la cella del numero uscito
+    document.querySelector('#numero-' + numero).classList.add('uscito');
+  }
+});
+
+// RESET
+btnReset.addEventListener('click', function(){
+  estratti = [];                                      // svuota i numeri usciti
+  ultimoNumero.textContent = "—";                     // rimette il trattino
+  cronologia.textContent = "Nessun numero estratto."; // rimette il testo iniziale
+  rendiTabellone();                                   // ricrea il tabellone e i disponibili
+});
